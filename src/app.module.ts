@@ -6,6 +6,7 @@ import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import * as dotEnv from 'dotenv';
+import * as Joi from 'joi';
 
 const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
 @Module({
@@ -19,6 +20,11 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
       envFilePath,
       // 加载自定义配置文件数组。这里可以加载提取出的相同配置文件属性
       load: [() => dotEnv.config({ path: '.env' })],
+      // 验证环境变量(只能验证特定环境的配置文件，不能验证load中加载的)
+      validationSchema: Joi.object({
+        // 验证DB_PORT变量，并设置默认值为3306
+        DB_PORT: Joi.number().valid(3306),
+      }),
     }),
     UserModule,
   ],

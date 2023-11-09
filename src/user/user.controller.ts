@@ -14,6 +14,7 @@ export class UserController {
     const envConfig = this.config;
     console.log(
       'db, db_url, user_name',
+      envConfig.get('DB_PORT'),
       envConfig.get('DB'),
       envConfig.get('DB_URL'),
       envConfig.get('USER_NAME'),
