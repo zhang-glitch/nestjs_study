@@ -23,7 +23,7 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
       // 验证环境变量(只能验证特定环境的配置文件，不能验证load中加载的)
       validationSchema: Joi.object({
         // 验证DB_PORT变量，并设置默认值为3306
-        DB_PORT: Joi.number().valid(3306),
+        // DB_PORT: Joi.number().valid(3306),
       }),
     }),
     UserModule,
