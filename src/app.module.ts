@@ -4,9 +4,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as dotEnv from 'dotenv';
 import * as Joi from 'joi';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
 @Module({
@@ -25,6 +26,41 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
         // 验证DB_PORT变量，并设置默认值为3306
         DB_PORT: Joi.number().valid(3306),
       }),
+    }),
+    // 配置数据库连接信息
+    // TypeOrmModule.forRoot({
+    //   type: 'mysql',
+    //   host: 'localhost',
+    //   port: 3306,
+    //   username: 'root',
+    //   password: 'ZH123456',
+    //   database: 'blog',
+    //   entities: [],
+    //   // 同步本地的schema与数据库 -> 初始化的时候去使用
+    //   synchronize: true,
+    //   // 日志等级
+    //   logging: ['error'],
+    // }),
+    // 工厂模式返回,使用环境变量中的配置
+    TypeOrmModule.forRootAsync({
+      // 为了可以使用ConfigService实例对象获取环境变量
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory(configService: ConfigService) {
+        return {
+          type: 'mysql',
+          host: configService.get('DB_HOST'),
+          port: configService.get('DB_PORT'),
+          username: configService.get('DB_USER_NAME'),
+          password: configService.get('DB_PASSWORD'),
+          database: configService.get('DB_DATE_BASE'),
+          entities: [],
+          // 同步本地的schema与数据库 -> 初始化的时候去使用
+          synchronize: true,
+          // 日志等级
+          logging: ['error'],
+        };
+      },
     }),
     UserModule,
   ],
