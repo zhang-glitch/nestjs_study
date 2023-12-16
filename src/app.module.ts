@@ -1,13 +1,16 @@
-import { UserService } from './user/user.service';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserController } from './user/user.controller';
 import { UserModule } from './user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as dotEnv from 'dotenv';
 import * as Joi from 'joi';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+
+import { User } from './user/user.entity';
+import { Roles } from './roles/roles.entity';
+import { Logs } from './logs/logs.entity';
+import { Profile } from './user/profile.entity';
 
 const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
 @Module({
@@ -54,19 +57,20 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
           username: configService.get('DB_USER_NAME'),
           password: configService.get('DB_PASSWORD'),
           database: configService.get('DB_DATE_BASE'),
-          entities: [],
+          // 注册实体类
+          entities: [User, Profile, Logs, Roles],
           // 同步本地的schema与数据库 -> 初始化的时候去使用
           synchronize: true,
           // 日志等级
           logging: ['error'],
-        };
+        } as TypeOrmModuleOptions;
       },
     }),
     UserModule,
   ],
   // 注册控制器
-  controllers: [AppController, UserController],
+  controllers: [AppController],
   // 依赖注入，在控制器中自动实例化该服务
-  providers: [AppService, UserService],
+  providers: [AppService],
 })
 export class AppModule {}
