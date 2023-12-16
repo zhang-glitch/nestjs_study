@@ -12,6 +12,9 @@ import { Roles } from './roles/roles.entity';
 import { Logs } from './logs/logs.entity';
 import { Profile } from './user/profile.entity';
 
+import { LoggerModule } from 'nestjs-pino';
+import { join } from 'path';
+
 const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
 @Module({
   // 导入模块
@@ -64,8 +67,52 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
           // 日志等级
           // logging: ['error'],
           // 在开发环境下，输出全部日志
-          logging: process.env.NODE_ENV === 'development',
+          // logging: process.env.NODE_ENV === 'development',
         } as TypeOrmModuleOptions;
+      },
+    }),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        // transport:
+        //   process.env.NODE_ENV === 'development'
+        //     ? {
+        //         target: 'pino-pretty',
+        //         options: {
+        //           colorize: true,
+        //         },
+        //       }
+        //     : {
+        //         target: 'pino-roll',
+        //         options: {
+        //           file: join(__dirname, '../logs/logs.txt'),
+        //           // 这个表示当前文件保存日志的周期，超过当前周期，保存在下一个文件
+        //           frequency: 'daily',
+        //           // 这个表示当前文件保存的大小，如果超过则保存在下一个文件中
+        //           size: '10kb',
+        //           mkdir: true,
+        //         },
+        //       },
+        transport: {
+          targets: [
+            {
+              target: 'pino-pretty',
+              options: {
+                colorize: true,
+              },
+            },
+            {
+              target: 'pino-roll',
+              options: {
+                file: join(__dirname, '../logs/logs.txt'),
+                // 这个表示当前文件保存日志的周期，超过当前周期，保存在下一个文件
+                frequency: 'daily',
+                // 这个表示当前文件保存的大小，如果超过则保存在下一个文件中
+                size: '10K',
+                mkdir: true,
+              },
+            },
+          ],
+        },
       },
     }),
     UserModule,

@@ -9,15 +9,21 @@ import {
   Body,
   Put,
   Delete,
+  // Logger,
 } from '@nestjs/common';
 import { UserService } from './user.service';
+import { Logger } from 'nestjs-pino';
 
 @Controller('user')
 export class UserController {
+  // private logger = new Logger('用户模块');
   constructor(
     private userService: UserService,
     private config: ConfigService,
-  ) {}
+    private logger: Logger,
+  ) {
+    this.logger.log('userController init.....');
+  }
 
   @Get('range/:num')
   getRange(@Param() params) {

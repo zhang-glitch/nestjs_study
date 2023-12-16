@@ -1,3 +1,4 @@
+import { Logger } from 'nestjs-pino';
 import {
   Body,
   Controller,
@@ -18,7 +19,12 @@ import { Request } from 'express';
 // 可以通过nest脚手架生成控制器模板 nest g controller <path>
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private logger: Logger,
+  ) {
+    this.logger.error('出现错误app');
+  }
 
   // 装饰器将类与所需的元数据相关联，并使 Nest 能够创建路由映射（将请求绑定到相应的控制器）。
   @Get()
