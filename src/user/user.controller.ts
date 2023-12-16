@@ -66,4 +66,15 @@ export class UserController {
   async deleteUserById(@Param() { id }) {
     return this.userService.removeUser(id);
   }
+
+  // 多表查询（一对一）
+  @Get('profile/:id')
+  async getUserProfile(@Param() { id }) {
+    return this.userService.findProfile(id);
+  }
+  // 多表查询（多对一）
+  @Get('logs/:id')
+  async getUserLogs(@Param() { id }) {
+    return this.userService.findLogs(id);
+  }
 }

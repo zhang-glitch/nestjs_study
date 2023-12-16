@@ -7,7 +7,9 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
+  OneToOne,
 } from 'typeorm';
+import { Profile } from './profile.entity';
 
 @Entity()
 export class User {
@@ -21,6 +23,11 @@ export class User {
 
   @Column()
   password: string;
+
+  // 对于多对一和一对一，我们只需要在对应的OneToOne,OneToMany中指定第二个参数与主表的映射属性即可。在主表中并不需要指定。设置JoinColumn注解即可。
+  // 这里需要指定关联属性
+  @OneToOne(() => Profile, (profile) => profile.user)
+  profile: Profile;
 
   // 一对多
   // 一个用户对应多个操作日志。
