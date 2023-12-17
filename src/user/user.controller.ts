@@ -1,3 +1,4 @@
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { User } from 'src/user/user.entity';
 import { ConfigService } from '@nestjs/config';
 import {
@@ -9,6 +10,8 @@ import {
   Body,
   Put,
   Delete,
+  Inject,
+  LoggerService,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 
@@ -17,7 +20,12 @@ export class UserController {
   constructor(
     private userService: UserService,
     private config: ConfigService,
-  ) {}
+    // 该模块需要等到logger初始化完成之后在进行初始化。
+    @Inject(WINSTON_MODULE_NEST_PROVIDER)
+    private readonly logger: LoggerService,
+  ) {
+    this.logger.error('user init error....');
+  }
 
   @Get('range/:num')
   getRange(@Param() params) {

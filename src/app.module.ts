@@ -1,3 +1,4 @@
+import { LogsModule } from './logs/logs.module';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -62,13 +63,14 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
           // 同步本地的schema与数据库 -> 初始化的时候去使用
           synchronize: true,
           // 日志等级
-          // logging: ['error'],
+          logging: ['error'],
           // 在开发环境下，输出全部日志
-          logging: process.env.NODE_ENV === 'development',
+          // logging: process.env.NODE_ENV === 'development',
         } as TypeOrmModuleOptions;
       },
     }),
     UserModule,
+    LogsModule,
   ],
   // 注册控制器
   controllers: [AppController],
