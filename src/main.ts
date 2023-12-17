@@ -1,3 +1,4 @@
+import { HttpExceptionFilter } from './filter/http-exception.filter';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { createLogger } from 'winston';
@@ -53,11 +54,15 @@ async function bootstrap() {
     ],
   });
 
-  const app = await NestFactory.create(AppModule, {
-    logger: WinstonModule.createLogger({
-      instance: loggerInstance,
-    }),
+  const logger = WinstonModule.createLogger({
+    instance: loggerInstance,
   });
+
+  const app = await NestFactory.create(AppModule, {
+    logger,
+  });
+  // 全局的filter只能有一个
+  app.useGlobalFilters(new HttpExceptionFilter(logger));
   await app.listen(8888);
 }
 bootstrap();
