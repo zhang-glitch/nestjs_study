@@ -9,10 +9,11 @@ import {
   Body,
   Put,
   Delete,
-  // Logger,
+  LoggerService,
+  Logger,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { Logger } from 'nestjs-pino';
+// import { Logger } from 'nestjs-pino';
 
 @Controller('user')
 export class UserController {
@@ -20,7 +21,7 @@ export class UserController {
   constructor(
     private userService: UserService,
     private config: ConfigService,
-    private logger: Logger,
+    private logger: Logger, // private readonly logger: LoggerService,
   ) {
     this.logger.log('userController init.....');
   }
@@ -48,6 +49,7 @@ export class UserController {
 
   @Get('getAllUser')
   async getAllUser() {
+    this.logger.log('请求');
     return this.userService.findAll();
   }
 

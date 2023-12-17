@@ -1,4 +1,4 @@
-import { Logger } from 'nestjs-pino';
+// import { Logger } from 'nestjs-pino';
 import {
   Body,
   Controller,
@@ -11,6 +11,7 @@ import {
   Redirect,
   Param,
   Query,
+  Logger,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { Request } from 'express';

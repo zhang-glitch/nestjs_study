@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger, Global } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
@@ -12,10 +12,17 @@ import { Roles } from './roles/roles.entity';
 import { Logs } from './logs/logs.entity';
 import { Profile } from './user/profile.entity';
 
-import { LoggerModule } from 'nestjs-pino';
-import { join } from 'path';
+// import { LoggerModule } from 'nestjs-pino';
+// import { join } from 'path';
+
+// import {
+//   utilities as nestWinstonModuleUtilities,
+//   WinstonModule,
+// } from 'nest-winston';
+// import * as winston from 'winston';
 
 const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
+@Global()
 @Module({
   // 导入模块
   // ConfigModule.forRoot 加载环境变量
@@ -71,55 +78,75 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
         } as TypeOrmModuleOptions;
       },
     }),
-    LoggerModule.forRoot({
-      pinoHttp: {
-        // transport:
-        //   process.env.NODE_ENV === 'development'
-        //     ? {
-        //         target: 'pino-pretty',
-        //         options: {
-        //           colorize: true,
-        //         },
-        //       }
-        //     : {
-        //         target: 'pino-roll',
-        //         options: {
-        //           file: join(__dirname, '../logs/logs.txt'),
-        //           // 这个表示当前文件保存日志的周期，超过当前周期，保存在下一个文件
-        //           frequency: 'daily',
-        //           // 这个表示当前文件保存的大小，如果超过则保存在下一个文件中
-        //           size: '10kb',
-        //           mkdir: true,
-        //         },
-        //       },
-        transport: {
-          targets: [
-            {
-              target: 'pino-pretty',
-              options: {
-                colorize: true,
-              },
-            },
-            {
-              target: 'pino-roll',
-              options: {
-                file: join(__dirname, '../logs/logs.txt'),
-                // 这个表示当前文件保存日志的周期，超过当前周期，保存在下一个文件
-                frequency: 'daily',
-                // 这个表示当前文件保存的大小，如果超过则保存在下一个文件中
-                size: '10K',
-                mkdir: true,
-              },
-            },
-          ],
-        },
-      },
-    }),
+    // pino配置日志系统
+    // LoggerModule.forRoot({
+    //   pinoHttp: {
+    //     // transport:
+    //     //   process.env.NODE_ENV === 'development'
+    //     //     ? {
+    //     //         target: 'pino-pretty',
+    //     //         options: {
+    //     //           colorize: true,
+    //     //         },
+    //     //       }
+    //     //     : {
+    //     //         target: 'pino-roll',
+    //     //         options: {
+    //     //           file: join(__dirname, '../logs/logs.txt'),
+    //     //           // 这个表示当前文件保存日志的周期，超过当前周期，保存在下一个文件
+    //     //           frequency: 'daily',
+    //     //           // 这个表示当前文件保存的大小，如果超过则保存在下一个文件中
+    //     //           size: '10kb',
+    //     //           mkdir: true,
+    //     //         },
+    //     //       },
+    //     transport: {
+    //       targets: [
+    //         {
+    //           target: 'pino-pretty',
+    //           options: {
+    //             colorize: true,
+    //           },
+    //         },
+    //         {
+    //           target: 'pino-roll',
+    //           options: {
+    //             file: join(__dirname, '../logs/logs.txt'),
+    //             // 这个表示当前文件保存日志的周期，超过当前周期，保存在下一个文件
+    //             frequency: 'daily',
+    //             // 这个表示当前文件保存的大小，如果超过则保存在下一个文件中
+    //             size: '10K',
+    //             mkdir: true,
+    //           },
+    //         },
+    //       ],
+    //     },
+    //   },
+    // }),
+
+    // winston配置日志系统
+    // WinstonModule.forRoot({
+    //   transports: [
+    //     new winston.transports.Console({
+    //       format: winston.format.combine(
+    //         winston.format.timestamp(),
+    //         winston.format.ms(),
+    //         nestWinstonModuleUtilities.format.nestLike('MyApp', {
+    //           colors: true,
+    //           prettyPrint: true,
+    //         }),
+    //       ),
+    //     }),
+    //     // other transports...
+    //   ],
+    //   // other options
+    // }),
     UserModule,
   ],
   // 注册控制器
   controllers: [AppController],
   // 依赖注入，在控制器中自动实例化该服务
-  providers: [AppService],
+  providers: [AppService, Logger],
+  exports: [Logger],
 })
 export class AppModule {}
