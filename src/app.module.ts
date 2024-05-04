@@ -7,11 +7,18 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as dotEnv from 'dotenv';
 import * as Joi from 'joi';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { APP_FILTER } from '@nestjs/core';
+import { HttpExceptionFilter } from './exceptions/http.exception.filter';
+import { AllExceptionsFilter } from './exceptions/base.exception.filter';
 
-import { User } from './user/user.entity';
-import { Roles } from './roles/roles.entity';
-import { Logs } from './logs/logs.entity';
-import { Profile } from './user/profile.entity';
+// import { User } from './user/user.entity';
+// import { Roles } from './roles/roles.entity';
+// import { Logs } from './logs/logs.entity';
+// import { Profile } from './user/profile.entity';
+const entities =
+  process.env.NODE_ENV === 'test'
+    ? [__dirname + '/**/*.entity.ts']
+    : [__dirname + '/**/*.entity{.js,.ts}'];
 
 const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
 @Module({
@@ -59,7 +66,9 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
           password: configService.get('DB_PASSWORD'),
           database: configService.get('DB_DATE_BASE'),
           // 注册实体类
-          entities: [User, Profile, Logs, Roles],
+          // entities: [User, Profile, Logs, Roles],
+          // 支持glob形式路径
+          entities,
           // 同步本地的schema与数据库 -> 初始化的时候去使用
           synchronize: true,
           // 日志等级
@@ -75,6 +84,16 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
   // 注册控制器
   controllers: [AppController],
   // 依赖注入，在控制器中自动实例化该服务
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}
