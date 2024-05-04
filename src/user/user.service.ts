@@ -18,11 +18,20 @@ export class UserService {
     return this.userRepository.find();
   }
 
+  // 通过用户名查找
+  async findByUserName(username: string) {
+    return this.userRepository.find({
+      where: {
+        username,
+      },
+    });
+  }
+
   async findById(id: number) {
     return this.userRepository.find({ where: { id } });
   }
 
-  async createUser(user: User) {
+  async createUser(user: Partial<User>) {
     // 创建一个数据库实体类
     const dbUser = await this.userRepository.create(user);
     return this.userRepository.save(dbUser);

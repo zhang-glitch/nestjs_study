@@ -17,12 +17,16 @@ import {
   Redirect,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Response, Request } from 'express';
 import { BusinessException } from 'src/exceptions/business.exception';
+import { AuthGuard } from '../guards/auth.guard';
 
 @Controller('user')
+// 请求守卫
+// @UseGuards(AuthGuard)
 export class UserController {
   constructor(
     private userService: UserService,
@@ -108,7 +112,10 @@ export class UserController {
   }
 
   @Get('getAllUser')
-  async getAllUser() {
+  // 请求守卫
+  // @UseGuards(AuthGuard)
+  async getAllUser(@Req() req: Request) {
+    console.log('===req', req['user']);
     return this.userService.findAll();
   }
 

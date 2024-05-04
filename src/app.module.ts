@@ -1,5 +1,5 @@
 import { LogsModule } from './logs/logs.module';
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
@@ -7,7 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as dotEnv from 'dotenv';
 import * as Joi from 'joi';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { HttpExceptionFilter } from './exceptions/http.exception.filter';
 import { AllExceptionsFilter } from './exceptions/base.exception.filter';
 
@@ -15,6 +15,8 @@ import { AllExceptionsFilter } from './exceptions/base.exception.filter';
 // import { Roles } from './roles/roles.entity';
 // import { Logs } from './logs/logs.entity';
 // import { Profile } from './user/profile.entity';
+import { AuthModule } from './auth/auth.module';
+import { AuthGuard } from './guards/auth.guard';
 const entities =
   process.env.NODE_ENV === 'test'
     ? [__dirname + '/**/*.entity.ts']
@@ -29,8 +31,9 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
       // 将环境变量在全部文件模块中导入
       isGlobal: true,
       // 设置读取的环境变量文件
+      // 如果在多个文件中发现同一个变量，则第一个变量优先。
       envFilePath,
-      // 加载自定义配置文件数组。这里可以加载提取出的相同配置文件属性
+      // 加载自定义配置文件数组。这里可以加载提取出的相同配置文件属性,dotEnv.config({ path: '.env' })将环境变量加载到process.env中
       load: [() => dotEnv.config({ path: '.env' })],
       // 验证环境变量(只能验证特定环境的配置文件，不能验证load中加载的)
       validationSchema: Joi.object({
@@ -80,6 +83,7 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
     }),
     UserModule,
     LogsModule,
+    AuthModule,
   ],
   // 注册控制器
   controllers: [AppController],
@@ -88,11 +92,21 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
     AppService,
     {
       provide: APP_FILTER,
-      useClass: AllExceptionsFilter,
+      useClass: AllExceptionsFilter, // 可以进行DI注入 LoggerService
     },
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
+    },
+    // 必须的加这个
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
+    // 守卫，token验证
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
     },
   ],
 })
