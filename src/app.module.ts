@@ -7,7 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as dotEnv from 'dotenv';
 import * as Joi from 'joi';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { HttpExceptionFilter } from './exceptions/http.exception.filter';
 import { AllExceptionsFilter } from './exceptions/base.exception.filter';
 
@@ -17,6 +17,7 @@ import { AllExceptionsFilter } from './exceptions/base.exception.filter';
 // import { Profile } from './user/profile.entity';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './guards/auth.guard';
+import { SerializeInterceptor } from './interceptors/serialize.interceptor';
 const entities =
   process.env.NODE_ENV === 'test'
     ? [__dirname + '/**/*.entity.ts']
@@ -99,15 +100,19 @@ const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
       useClass: HttpExceptionFilter,
     },
     // 必须的加这个
-    {
-      provide: APP_PIPE,
-      useClass: ValidationPipe,
-    },
+    // {
+    //   provide: APP_PIPE,
+    //   useClass: ValidationPipe,
+    // },
     // 守卫，token验证
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: SerializeInterceptor,
+    // },
   ],
 })
 export class AppModule {}

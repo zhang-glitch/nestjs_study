@@ -18,11 +18,14 @@ import {
   HttpException,
   HttpStatus,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Response, Request } from 'express';
 import { BusinessException } from 'src/exceptions/business.exception';
 import { AuthGuard } from '../guards/auth.guard';
+import { RequestSerializeDto, ResponseSerializeDto } from './dto/serialize.dto';
+import { SerializeInterceptor } from 'src/interceptors/serialize.interceptor';
 
 @Controller('user')
 // 请求守卫
@@ -36,6 +39,14 @@ export class UserController {
     private readonly logger: LoggerService,
   ) {
     this.logger.error('user init error....');
+  }
+
+  // 测试后置拦截器序列化参数
+  @Post('/serialize')
+  @UseInterceptors(new SerializeInterceptor(ResponseSerializeDto))
+  getSerialize(@Body() serializeDto: RequestSerializeDto) {
+    console.log('请求dto', serializeDto);
+    return serializeDto;
   }
 
   // 异常处理
